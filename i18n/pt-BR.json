@@ -2660,6 +2660,10 @@
 				"title": "Registro de tempo iniciado",
 				"contentWithTask": "Registro de tempo iniciado na tarefa: {{taskTitle}}",
 				"contentWithoutTask": "Registro de tempo iniciado em uma tarefa"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"newCount_many": "{{count}} novas",
@@ -2950,7 +2954,10 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "Tarefa"

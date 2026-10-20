@@ -47,6 +47,7 @@ import getTasks from "./controllers/get-tasks";
 import importTasks from "./controllers/import-tasks";
 import moveTask from "./controllers/move-task";
 import reorderTasks from "./controllers/reorder-tasks";
+import { setTaskWatch } from "./controllers/set-task-watch";
 import {
   stageTaskAssetUpload,
   finalizeStagedTaskAsset,
@@ -354,6 +355,44 @@ const getTaskRoute = createRoute({
   responses: {
     200: jsonResponse("Task details", taskWithAssigneeSchema),
     403: errorResponse("No access to the project"),
+    404: errorResponse("Task not found"),
+  },
+});
+
+const taskWatchResponse = z.object({ watching: z.boolean() });
+
+const watchTaskRoute = createRoute({
+  method: "put",
+  operationId: "watchTask",
+  path: "/{id}/watch",
+  tags: ["Tasks"],
+  summary: "Watch a task",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
+  request: { params: taskParam },
+  responses: {
+    200: jsonResponse("Task watch enabled", taskWatchResponse),
+    403: errorResponse("No permission to read the task"),
+    404: errorResponse("Task not found"),
+  },
+});
+
+const unwatchTaskRoute = createRoute({
+  method: "delete",
+  operationId: "unwatchTask",
+  path: "/{id}/watch",
+  tags: ["Tasks"],
+  summary: "Stop watching a task",
+  middleware: [
+    workspaceAccess.fromTask(),
+    requireWorkspacePermission({ task: ["read"] }),
+  ] as const,
+  request: { params: taskParam },
+  responses: {
+    200: jsonResponse("Task watch disabled", taskWatchResponse),
+    403: errorResponse("No permission to read the task"),
     404: errorResponse("Task not found"),
   },
 });
@@ -949,6 +988,18 @@ const task = apiRouter<BaseVariables & { workspaceId: string }>()
 
     return c.json(task, 200);
   })
+  .openapi(watchTaskRoute, async (c) =>
+    c.json(
+      await setTaskWatch(c.req.valid("param").id, c.get("userId"), true),
+      200,
+    ),
+  )
+  .openapi(unwatchTaskRoute, async (c) =>
+    c.json(
+      await setTaskWatch(c.req.valid("param").id, c.get("userId"), false),
+      200,
+    ),
+  )
   .openapi(moveTaskRoute, async (c) => {
     const { id } = c.req.valid("param");
     const { destinationProjectId, destinationStatus } = c.req.valid("json");

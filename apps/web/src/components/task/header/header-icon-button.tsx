@@ -13,6 +13,8 @@ type HeaderIconButtonProps = {
   label: string;
   shortcutId?: ShortcutId;
   onClick?: () => void;
+  disabled?: boolean;
+  pressed?: boolean;
   className?: string;
   children: ReactNode;
 };
@@ -21,6 +23,8 @@ export function HeaderIconButton({
   label,
   shortcutId,
   onClick,
+  disabled,
+  pressed,
   className,
   children,
 }: HeaderIconButtonProps) {
@@ -32,7 +36,9 @@ export function HeaderIconButton({
             variant="ghost"
             size="icon-sm"
             aria-label={label}
+            aria-pressed={pressed}
             onClick={onClick}
+            disabled={disabled}
             className={cn(
               "text-muted-foreground hover:text-foreground [&_svg]:size-[15px]",
               className,

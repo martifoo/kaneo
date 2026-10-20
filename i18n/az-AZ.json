@@ -2614,6 +2614,10 @@
 				"title": "Vaxtın izlənməsi başladı",
 				"contentWithTask": "Tapşırıqda vaxtın izlənməsi başladı: {{taskTitle}}",
 				"contentWithoutTask": "Tapşırıqda vaxtın izlənməsi başladı"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"inbox": {
@@ -2903,7 +2907,10 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "Tapşırıq"

@@ -2562,6 +2562,10 @@
 			"task_overdue": {
 				"title": "작업 기한 초과",
 				"content": "{{taskTitle}}이(가) 마감일을 지났습니다"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"reminderLeadTime": {
@@ -2856,7 +2860,10 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "작업"

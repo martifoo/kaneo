@@ -2567,6 +2567,10 @@
 				"title": "已开始计时",
 				"contentWithTask": "已开始为任务 {{taskTitle}} 计时",
 				"contentWithoutTask": "已开始为某个任务计时"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"inbox": {
@@ -2856,7 +2860,10 @@
 				"saving": "正在保存…",
 				"saveFailed": "更改保存失败",
 				"retrySave": "重试"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "任务"

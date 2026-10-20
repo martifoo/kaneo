@@ -10745,6 +10745,19 @@
 								}
 							},
 							"required": ["title", "contentWithTask", "contentWithoutTask"]
+						},
+						"task_watched_assignee_changed": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"content": {
+									"type": "string"
+								}
+							},
+							"required": ["title", "content"]
 						}
 					},
 					"required": [
@@ -10756,7 +10769,8 @@
 						"task_comment",
 						"due_date_reminder",
 						"task_overdue",
-						"time_entry_created"
+						"time_entry_created",
+						"task_watched_assignee_changed"
 					]
 				},
 				"inbox": {
@@ -11908,6 +11922,15 @@
 								"saveFailed",
 								"retrySave"
 							]
+						},
+						"watchTask": {
+							"type": "string"
+						},
+						"unwatchTask": {
+							"type": "string"
+						},
+						"watchError": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -11919,7 +11942,10 @@
 						"openInFullPage",
 						"titlePlaceholder",
 						"addDescription",
-						"editor"
+						"editor",
+						"watchTask",
+						"unwatchTask",
+						"watchError"
 					]
 				},
 				"entity": {

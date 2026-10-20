@@ -2702,6 +2702,10 @@
 			"task_overdue": {
 				"title": "Задача просрочена",
 				"content": "Срок выполнения задачи «{{taskTitle}}» истёк"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"reminderLeadTime": {
@@ -3005,7 +3009,10 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "Задача"

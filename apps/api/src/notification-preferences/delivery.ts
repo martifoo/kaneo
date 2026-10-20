@@ -180,7 +180,7 @@ function buildDeliveryContent(notification: {
       );
       return {
         title: commenterName
-          ? `${commenterName} commented on your task`
+          ? `${commenterName} commented on a task`
           : "New task comment",
         body: taskTitle
           ? `A new comment was added to ${taskTitle}.`

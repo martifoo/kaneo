@@ -2567,6 +2567,10 @@
 				"title": "已開始計時",
 				"contentWithTask": "已開始為任務 {{taskTitle}} 計時",
 				"contentWithoutTask": "已開始為某個任務計時"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"inbox": {
@@ -2856,7 +2860,10 @@
 				"saving": "儲存中…",
 				"saveFailed": "無法儲存變更",
 				"retrySave": "重試"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "任務"

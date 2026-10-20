@@ -59,6 +59,10 @@ export const taskWithAssigneeSchema = taskSchema
       .optional(),
     assigneeName: z.string().nullable(),
     assigneeId: z.string().nullable(),
+    isWatching: z.boolean().optional().openapi({
+      description:
+        "Whether the current user watches this task in the detail view.",
+    }),
   })
   .openapi("TaskWithAssignee");
 

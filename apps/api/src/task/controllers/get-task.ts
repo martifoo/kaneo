@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import db from "../../database";
 import {
   taskTable,
+  taskWatcherTable,
   userTable,
   projectTable,
   taskRelationTable,
@@ -36,6 +37,11 @@ async function getTask(taskId: string, board = false, userId?: string) {
       assigneeId: userTable.id,
       projectId: taskTable.projectId,
       workspaceId: sql<string>`(select ${projectTable.workspaceId} from ${projectTable} where ${projectTable.id} = ${taskTable.projectId})`,
+      ...(!board && userId
+        ? {
+            isWatching: sql<boolean>`exists (select 1 from ${taskWatcherTable} where ${taskWatcherTable.taskId} = ${taskTable.id} and ${taskWatcherTable.userId} = ${userId})`,
+          }
+        : {}),
     })
     .from(taskTable)
     .leftJoin(userTable, eq(taskTable.userId, userTable.id))

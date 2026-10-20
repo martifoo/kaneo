@@ -1,7 +1,10 @@
 import type { AlertDialog as AlertDialogPrimitive } from "@base-ui/react/alert-dialog";
-import { GitBranch, Link2 } from "lucide-react";
+import { Bell, BellRing, GitBranch, Link2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "@/lib/toast";
 import { HeaderIconButton } from "./header-icon-button";
+import { useSetTaskWatch } from "@/hooks/mutations/task/use-set-task-watch";
+import useGetTask from "@/hooks/queries/task/use-get-task";
 import { TaskMoreMenu } from "./task-more-menu";
 import { useTaskCopyActions } from "./use-task-copy-actions";
 
@@ -20,9 +23,28 @@ export function TaskHeaderActions({
 }: TaskHeaderActionsProps) {
   const { t } = useTranslation();
   const actions = useTaskCopyActions({ taskId, projectId, workspaceId });
+  const { data: task } = useGetTask(taskId);
+  const watch = useSetTaskWatch();
+  const isWatching = task?.isWatching ?? false;
 
   return (
     <div className="flex items-center gap-1">
+      <HeaderIconButton
+        label={t(
+          isWatching ? "tasks:detail.unwatchTask" : "tasks:detail.watchTask",
+        )}
+        pressed={isWatching}
+        disabled={!task || watch.isPending}
+        onClick={() =>
+          watch.mutate(
+            { taskId, watching: !isWatching },
+            { onError: () => toast.error(t("tasks:detail.watchError")) },
+          )
+        }
+        className={isWatching ? "text-foreground" : undefined}
+      >
+        {isWatching ? <BellRing /> : <Bell />}
+      </HeaderIconButton>
       <HeaderIconButton
         label={t("tasks:properties.copyTaskLink")}
         shortcutId="copyTaskUrl"

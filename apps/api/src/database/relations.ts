@@ -19,6 +19,7 @@ import {
   taskRelationTable,
   taskReminderSentTable,
   taskTable,
+  taskWatcherTable,
   teamMemberTable,
   teamTable,
   timeEntryTable,
@@ -39,6 +40,7 @@ export const userTableRelations = relations(userTable, ({ many, one }) => ({
   teamMembers: many(teamMemberTable),
   workspaceMemberships: many(workspaceUserTable),
   assignedTasks: many(taskTable),
+  watchedTasks: many(taskWatcherTable),
   timeEntries: many(timeEntryTable),
   activities: many(activityTable),
   comments: many(commentTable),
@@ -157,8 +159,23 @@ export const taskTableRelations = relations(taskTable, ({ one, many }) => ({
   sourceRelations: many(taskRelationTable, { relationName: "sourceTask" }),
   targetRelations: many(taskRelationTable, { relationName: "targetTask" }),
   remindersSent: many(taskReminderSentTable),
+  watchers: many(taskWatcherTable),
   customFieldValues: many(customFieldValueTable),
 }));
+
+export const taskWatcherTableRelations = relations(
+  taskWatcherTable,
+  ({ one }) => ({
+    task: one(taskTable, {
+      fields: [taskWatcherTable.taskId],
+      references: [taskTable.id],
+    }),
+    user: one(userTable, {
+      fields: [taskWatcherTable.userId],
+      references: [userTable.id],
+    }),
+  }),
+);
 
 export const timeEntryTableRelations = relations(timeEntryTable, ({ one }) => ({
   task: one(taskTable, {

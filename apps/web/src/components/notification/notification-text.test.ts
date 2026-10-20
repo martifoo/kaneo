@@ -13,7 +13,7 @@ const t = (key: string, options?: Record<string, unknown>) => {
     return `${options?.taskTitle} is due in ${options?.leadTime}`;
   }
   if (key === "notifications:events.task_comment.title") {
-    return `${options?.commenterName} commented on your task`;
+    return `${options?.commenterName} commented on a task`;
   }
   if (key === "notifications:events.task_comment.content") {
     return `New comment on ${options?.taskTitle}: ${options?.commentPreview}`;
@@ -60,7 +60,7 @@ describe("notification display content", () => {
       commentPreview: "Ready for review",
     });
 
-    expect(getNotificationTitle(item, t)).toBe("Mina commented on your task");
+    expect(getNotificationTitle(item, t)).toBe("Mina commented on a task");
     expect(getNotificationContent(item, t)).toBe(
       "New comment on Launch website: Ready for review",
     );

@@ -39,7 +39,9 @@ export async function persistNotification(
   }
 
   const preferenceKey =
-    type === "task_assignee_changed" || type === "task_created"
+    type === "task_assignee_changed" ||
+    type === "task_watched_assignee_changed" ||
+    type === "task_created"
       ? "taskAssignmentEnabled"
       : type === "task_comment" || type === "task_mention"
         ? "taskCommentEnabled"

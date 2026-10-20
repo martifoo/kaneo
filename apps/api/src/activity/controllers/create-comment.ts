@@ -9,6 +9,7 @@ import {
 } from "../../database/schema";
 import { publishEvent } from "../../events";
 import createNotification from "../../notification/controllers/create-notification";
+import { getTaskWatcherIds } from "../../notification/get-task-watcher-ids";
 import { parseMentionIds } from "../../utils/parse-mentions";
 
 async function createComment(
@@ -64,7 +65,9 @@ async function createComment(
   }
 
   // Notify any workspace members @mentioned in the comment (not the author).
-  const mentionedIds = parseMentionIds(content).filter((id) => id !== userId);
+  const mentionedIds = new Set(
+    parseMentionIds(content).filter((id) => id !== userId),
+  );
   for (const mentionedId of mentionedIds) {
     await createNotification({
       userId: mentionedId,
@@ -80,24 +83,29 @@ async function createComment(
     });
   }
 
-  if (
-    task?.assigneeId &&
-    task.assigneeId !== userId &&
-    !mentionedIds.includes(task.assigneeId)
-  ) {
-    await createNotification({
-      userId: task.assigneeId,
-      type: "task_comment",
-      eventData: {
-        taskTitle: task.title,
-        commenterName: user?.name ?? null,
-        commentPreview: content.slice(0, 160),
-        projectId: task.projectId,
-        workspaceId: task.workspaceId,
-      },
-      resourceId: taskId,
-      resourceType: "task",
-    });
+  if (task) {
+    const watchers = await getTaskWatcherIds(taskId);
+    const recipients = new Set(
+      [...watchers, task.assigneeId].filter(
+        (id): id is string =>
+          id !== null && id !== userId && !mentionedIds.has(id),
+      ),
+    );
+    for (const recipientId of recipients) {
+      await createNotification({
+        userId: recipientId,
+        type: "task_comment",
+        eventData: {
+          taskTitle: task.title,
+          commenterName: user?.name ?? null,
+          commentPreview: content.slice(0, 160),
+          projectId: task.projectId,
+          workspaceId: task.workspaceId,
+        },
+        resourceId: taskId,
+        resourceType: "task",
+      });
+    }
   }
 
   return activity;

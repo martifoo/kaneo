@@ -836,6 +836,10 @@
 				"title": "Rozpoczęto śledzenie czasu",
 				"contentWithTask": "Rozpoczęto śledzenie czasu dla zadania: {{taskTitle}}",
 				"contentWithoutTask": "Rozpoczęto śledzenie czasu dla zadania"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"inbox": {
@@ -3369,7 +3373,10 @@
 			"noActivity": "Nie znaleziono aktywności",
 			"openInFullPage": "Otwórz na pełnej stronie",
 			"subtaskOf": "Podzadanie zadania",
-			"titlePlaceholder": "Kliknij, aby dodać tytuł"
+			"titlePlaceholder": "Kliknij, aby dodać tytuł",
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"dueDate": {
 			"clear": "Wyczyść datę",

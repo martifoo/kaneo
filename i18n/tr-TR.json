@@ -2606,6 +2606,10 @@
 			"task_overdue": {
 				"title": "Talep gecikti",
 				"content": "{{taskTitle}} talebinin bitiş tarihi geçti"
+			},
+			"task_watched_assignee_changed": {
+				"content": "The assignee of {{taskTitle}} changed.",
+				"title": "Task assignee changed"
 			}
 		},
 		"reminderLeadTime": {
@@ -2903,7 +2907,10 @@
 				"saving": "Saving…",
 				"saveFailed": "Changes could not be saved",
 				"retrySave": "Retry"
-			}
+			},
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
+			"watchTask": "Watch task"
 		},
 		"entity": {
 			"task": "Talep"

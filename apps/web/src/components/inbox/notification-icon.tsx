@@ -16,6 +16,7 @@ const icons: Record<string, LucideIcon> = {
   task_mention: AtSign,
   task_comment: MessageSquare,
   task_assignee_changed: UserRound,
+  task_watched_assignee_changed: UserRound,
   task_status_changed: History,
   task_created: SquarePlus,
   due_date_reminder: CalendarClock,

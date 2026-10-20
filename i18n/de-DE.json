@@ -722,10 +722,10 @@
 			"webhookSecretHintOptional": "Kaneo signiert den Anfragetext, wenn ein Geheimnis gesetzt ist.",
 			"connectWebhook": "Webhook verbinden",
 			"eventPreferencesTitle": "Benachrichtige mich über",
-			"eventPreferencesDescription": "Über deine eigenen Kommentare, Erwähnungen und Statusänderungen wirst du nie benachrichtigt.",
+			"eventPreferencesDescription": "Über deine eigenen Aktionen wirst du nicht benachrichtigt.",
 			"eventTaskAssignments": "Zuweisungen",
 			"eventComments": "Kommentare und Erwähnungen",
-			"eventCommentsHint": "Neue Kommentare zu deinen Aufgaben und wenn dich jemand @erwähnt.",
+			"eventCommentsHint": "Neue Kommentare zu dir zugewiesenen oder von dir beobachteten Aufgaben und @Erwähnungen.",
 			"eventStatusChanges": "Statusänderungen",
 			"eventDueDateReminders": "Fälligkeitserinnerungen",
 			"reminderLeadTimeLabel": "Vor dem Fälligkeitsdatum erinnern",
@@ -770,8 +770,8 @@
 			"done": "Fertig",
 			"emailToggleLabel": "Benachrichtigungen per E-Mail senden",
 			"eventDueDateRemindersHint": "Bevor eine deiner Aufgaben fällig ist. Über überfällige Aufgaben wirst du separat benachrichtigt.",
-			"eventStatusChangesHint": "Wenn eine deiner Aufgaben in eine andere Spalte verschoben wird.",
-			"eventTaskAssignmentsHint": "Wenn dir jemand eine Aufgabe zuweist.",
+			"eventStatusChangesHint": "Wenn eine dir zugewiesene oder von dir beobachtete Aufgabe in eine andere Spalte verschoben wird.",
+			"eventTaskAssignmentsHint": "Wenn dir jemand eine Aufgabe zuweist oder sich die zuständige Person einer von dir beobachteten Aufgabe ändert.",
 			"loadFailed": "Benachrichtigungseinstellungen konnten nicht geladen werden.",
 			"onlyInKaneo": "Nur in Kaneo",
 			"optional": "Optional",
@@ -2594,12 +2594,16 @@
 				"title": "Aufgabe wurde dir zugewiesen",
 				"content": "Dir wurde die Aufgabe \"{{taskTitle}}\" zugewiesen"
 			},
+			"task_watched_assignee_changed": {
+				"title": "Zuständigkeit geändert",
+				"content": "Die zuständige Person für {{taskTitle}} hat sich geändert."
+			},
 			"task_mention": {
 				"title": "{{mentionerName}} hat dich erwähnt",
 				"content": "{{mentionerName}} hat dich in „{{taskTitle}}“ erwähnt"
 			},
 			"task_comment": {
-				"title": "{{commenterName}} hat deine Aufgabe kommentiert",
+				"title": "{{commenterName}} hat eine Aufgabe kommentiert",
 				"content": "Neuer Kommentar zu „{{taskTitle}}“: {{commentPreview}}"
 			},
 			"due_date_reminder": {
@@ -2794,6 +2798,9 @@
 			"activity": "Aktivität",
 			"noActivity": "Keine Aktivität gefunden",
 			"openInFullPage": "Auf ganzer Seite öffnen",
+			"watchTask": "Aufgabe beobachten",
+			"unwatchTask": "Aufgabe nicht mehr beobachten",
+			"watchError": "Beobachtung der Aufgabe konnte nicht geändert werden.",
 			"titlePlaceholder": "Klicken, um einen Titel hinzuzufügen",
 			"addDescription": "Beschreibung hinzufügen...",
 			"editor": {

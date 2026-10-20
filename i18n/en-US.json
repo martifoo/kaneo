@@ -868,10 +868,10 @@
 			"webhookSecretHintOptional": "Kaneo signs the request body when a secret is set.",
 			"connectWebhook": "Connect webhook",
 			"eventPreferencesTitle": "Notify me about",
-			"eventPreferencesDescription": "Your own comments, mentions, and status changes never notify you.",
+			"eventPreferencesDescription": "Your own actions never notify you.",
 			"eventTaskAssignments": "Assignments",
 			"eventComments": "Comments and mentions",
-			"eventCommentsHint": "New comments on your tasks, and anyone who @mentions you.",
+			"eventCommentsHint": "New comments on tasks assigned to you or watched by you, and @mentions.",
 			"eventStatusChanges": "Status changes",
 			"eventDueDateReminders": "Due date reminders",
 			"reminderLeadTimeLabel": "Remind me before the due date",
@@ -902,8 +902,8 @@
 			"toastRuleSavedGeneric": "Workspace notification rule saved",
 			"toastRuleRemovedGeneric": "Workspace notification rule removed",
 			"loadFailed": "Notification settings could not be loaded.",
-			"eventTaskAssignmentsHint": "When someone assigns a task to you.",
-			"eventStatusChangesHint": "When one of your tasks moves to another column.",
+			"eventTaskAssignmentsHint": "When someone assigns a task to you or changes the assignee of a task you watch.",
+			"eventStatusChangesHint": "When a task assigned to you or watched by you moves to another column.",
 			"eventDueDateRemindersHint": "Before one of your tasks is due. Overdue tasks notify you separately.",
 			"reminderLeadTimeUnitLabel": "Reminder unit",
 			"reminderLeadTimeUnitHoursBefore_one": "hour before",
@@ -2594,12 +2594,16 @@
 				"title": "Task assigned to you",
 				"content": "You have been assigned to task: {{taskTitle}}"
 			},
+			"task_watched_assignee_changed": {
+				"title": "Task assignee changed",
+				"content": "The assignee of {{taskTitle}} changed."
+			},
 			"task_mention": {
 				"title": "{{mentionerName}} mentioned you",
 				"content": "{{mentionerName}} mentioned you in: {{taskTitle}}"
 			},
 			"task_comment": {
-				"title": "{{commenterName}} commented on your task",
+				"title": "{{commenterName}} commented on a task",
 				"content": "New comment on {{taskTitle}}: {{commentPreview}}"
 			},
 			"due_date_reminder": {
@@ -2795,6 +2799,9 @@
 			"activity": "Activity",
 			"noActivity": "No activity found",
 			"openInFullPage": "Open in full page",
+			"watchTask": "Watch task",
+			"unwatchTask": "Stop watching task",
+			"watchError": "Could not update task watch.",
 			"titlePlaceholder": "Click to add a title",
 			"addDescription": "Add a description...",
 			"editor": {

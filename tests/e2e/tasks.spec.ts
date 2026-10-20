@@ -211,3 +211,180 @@ test("another workspace member receives task edits in realtime", async ({
     await colleague.close();
   }
 });
+
+test("a viewer watches a task, receives changes in the inbox, and stops watching", async ({
+  page,
+  browser,
+  baseURL,
+}) => {
+  test.setTimeout(180_000);
+  if (!baseURL) throw new Error("Browser tests require a baseURL");
+  const workspaceId = await createWorkspace(page);
+  const boardUrl = await createProject(page);
+  const projectId = new URL(boardUrl).pathname
+    .split("/project/")[1]
+    .split("/")[0];
+  const creation = page.waitForResponse(
+    (response) =>
+      new URL(response.url()).pathname === `/api/task/${projectId}` &&
+      response.request().method() === "POST",
+  );
+  await createTask(page, "Watch me");
+  const created = await creation;
+  expect(created.ok()).toBe(true);
+  const task = (await created.json()) as { id: string };
+  const taskUrl = boardUrl.replace(/\/board$/, `/task/${task.id}`);
+  const session = await page.request.get("/api/auth/get-session");
+  await expect(session).toBeOK();
+  const { user: owner } = (await session.json()) as { user: { id: string } };
+  const origin = new URL(baseURL).origin;
+  const update = async (path: string, data: object) => {
+    const response = await page.request.put(`/api/task/${path}/${task.id}`, {
+      data,
+      headers: { Origin: origin },
+    });
+    await expect(response).toBeOK();
+  };
+  const viewer = await browser.newContext({
+    baseURL,
+    ignoreHTTPSErrors: test.info().project.use.ignoreHTTPSErrors,
+    locale: "en-US",
+  });
+  try {
+    const email = await signUp(viewer.request);
+    const invitation = await post(
+      page.request,
+      "auth/organization/invite-member",
+      {
+        organizationId: workspaceId,
+        email,
+        role: "viewer",
+      },
+    );
+    await post(viewer.request, "auth/organization/accept-invitation", {
+      invitationId: invitation.id,
+    });
+    await post(viewer.request, "auth/organization/set-active", {
+      organizationId: workspaceId,
+    });
+    const observer = await viewer.newPage();
+    let connectedSocket: WebSocket | undefined;
+    const currentSocket = (): WebSocket | undefined => connectedSocket;
+    observer.on("websocket", (socket) => {
+      if (new URL(socket.url()).pathname !== "/api/ws/user") return;
+      socket.on("framesent", ({ payload }) => {
+        if (String(payload) === '{"type":"ping"}') connectedSocket = socket;
+      });
+      socket.on("close", () => {
+        if (connectedSocket === socket) connectedSocket = undefined;
+      });
+    });
+    const notificationTypes = async () => {
+      const response = await viewer.request.get(
+        `/api/notification?workspaceId=${workspaceId}`,
+      );
+      await expect(response).toBeOK();
+      const notifications = (await response.json()) as Array<{
+        resourceId: string;
+        type: string;
+      }>;
+      return notifications
+        .filter(({ resourceId }) => resourceId === task.id)
+        .map(({ type }) => type)
+        .sort();
+    };
+
+    await observer.goto(boardUrl);
+    await observer.getByText("Watch me", { exact: true }).click();
+    await observer
+      .getByRole("button", { name: "Watch task", exact: true })
+      .click();
+    await expect(
+      observer.getByRole("button", { name: "Stop watching task", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await observer.reload();
+    await expect(
+      observer.getByRole("button", { name: "Stop watching task", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await observer.goto(taskUrl);
+    await expect(
+      observer.getByRole("button", { name: "Stop watching task", exact: true }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await test.info().attach("watch-enabled", {
+      body: await observer.screenshot(),
+      contentType: "image/png",
+    });
+
+    connectedSocket = undefined;
+    await observer.goto(`/dashboard/workspace/${workspaceId}/inbox`);
+    await expect
+      .poll(() => Boolean(currentSocket()), { timeout: 45_000 })
+      .toBe(true);
+    const socket = currentSocket();
+    if (!socket) throw new Error("User websocket disconnected");
+    const notificationEvent = socket.waitForEvent(
+      "framereceived",
+      ({ payload }) =>
+        JSON.parse(String(payload)).type === "NOTIFICATION_CREATED",
+    );
+    await update("status", { status: "in-progress" });
+    await notificationEvent;
+    await expect(
+      observer.getByText("Task status changed", { exact: true }),
+    ).toBeVisible();
+
+    await post(page.request, "activity/comment", {
+      taskId: task.id,
+      comment: "A watcher comment",
+    });
+    await expect(
+      observer.getByText("New comment on Watch me: A watcher comment", {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await update("assignee", { userId: owner.id });
+    await update("assignee", { userId: null });
+    await expect
+      .poll(notificationTypes)
+      .toEqual([
+        "task_comment",
+        "task_status_changed",
+        "task_watched_assignee_changed",
+        "task_watched_assignee_changed",
+      ]);
+    await expect(
+      observer.getByText("Task assignee changed", { exact: true }),
+    ).toHaveCount(2);
+    await test.info().attach("watcher-inbox", {
+      body: await observer.screenshot(),
+      contentType: "image/png",
+    });
+
+    await observer.goto(taskUrl);
+    await observer
+      .getByRole("button", { name: "Stop watching task", exact: true })
+      .click();
+    await expect(
+      observer.getByRole("button", { name: "Watch task", exact: true }),
+    ).toHaveAttribute("aria-pressed", "false");
+    await observer.reload();
+    await expect(
+      observer.getByRole("button", { name: "Watch task", exact: true }),
+    ).toHaveAttribute("aria-pressed", "false");
+    await post(page.request, "activity/comment", {
+      taskId: task.id,
+      comment: "After unwatching",
+    });
+    expect(await notificationTypes()).toHaveLength(4);
+
+    await observer.goto("/dashboard/settings/account/notifications");
+    await expect(
+      observer.getByText(
+        "When someone assigns a task to you or changes the assignee of a task you watch.",
+        { exact: true },
+      ),
+    ).toBeVisible();
+  } finally {
+    await viewer.close();
+  }
+});

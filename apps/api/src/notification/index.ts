@@ -12,6 +12,7 @@ import clearNotifications from "./controllers/clear-notifications";
 import createNotification from "./controllers/create-notification";
 import deleteNotification from "./controllers/delete-notification";
 import getNotifications from "./controllers/get-notifications";
+import { getTaskWatcherIds } from "./get-task-watcher-ids";
 import markAllNotificationsAsRead from "./controllers/mark-all-notifications-as-read";
 import setNotificationRead from "./controllers/set-notification-read";
 import {
@@ -284,23 +285,30 @@ subscribeToEvent<{
   title: string;
   assigneeId?: string;
 }>("task.status_changed", async (data) => {
-  if (data.assigneeId && data.assigneeId !== data.userId) {
-    const [task] = await db
-      .select({ projectId: taskTable.projectId })
-      .from(taskTable)
-      .where(eq(taskTable.id, data.taskId))
-      .limit(1);
+  const watchers = await getTaskWatcherIds(data.taskId);
+  const recipients = new Set(
+    [...watchers, data.assigneeId].filter(
+      (id): id is string => Boolean(id) && id !== data.userId,
+    ),
+  );
+  if (!recipients.size) return;
 
-    const [project] = task
-      ? await db
-          .select({ workspaceId: projectTable.workspaceId })
-          .from(projectTable)
-          .where(eq(projectTable.id, task.projectId))
-          .limit(1)
-      : [];
+  const [task] = await db
+    .select({ projectId: taskTable.projectId })
+    .from(taskTable)
+    .where(eq(taskTable.id, data.taskId))
+    .limit(1);
+  const [project] = task
+    ? await db
+        .select({ workspaceId: projectTable.workspaceId })
+        .from(projectTable)
+        .where(eq(projectTable.id, task.projectId))
+        .limit(1)
+    : [];
 
+  for (const userId of recipients) {
     await createNotification({
-      userId: data.assigneeId,
+      userId,
       type: "task_status_changed",
       eventData: {
         taskTitle: data.title,
@@ -315,31 +323,41 @@ subscribeToEvent<{
   }
 });
 
-subscribeToEvent<{
+type AssigneeChange = {
   taskId: string;
   userId?: string;
-  oldAssignee: string | null;
-  newAssignee: string;
-  newAssigneeId: string;
+  newAssigneeId?: string | null;
   title: string;
-}>("task.assignee_changed", async (data) => {
-  if (data.newAssigneeId && data.newAssigneeId !== data.userId) {
-    const [task] = await db
-      .select({ projectId: taskTable.projectId })
-      .from(taskTable)
-      .where(eq(taskTable.id, data.taskId))
-      .limit(1);
+};
 
-    const [project] = task
-      ? await db
-          .select({ workspaceId: projectTable.workspaceId })
-          .from(projectTable)
-          .where(eq(projectTable.id, task.projectId))
-          .limit(1)
-      : [];
+async function notifyAssigneeChange(data: AssigneeChange) {
+  const watchers = await getTaskWatcherIds(data.taskId);
+  const newAssigneeId = data.newAssigneeId;
+  const watchedRecipients = watchers.filter(
+    (id) => id !== data.userId && id !== newAssigneeId,
+  );
+  if (
+    (!newAssigneeId || newAssigneeId === data.userId) &&
+    !watchedRecipients.length
+  )
+    return;
 
+  const [task] = await db
+    .select({ projectId: taskTable.projectId })
+    .from(taskTable)
+    .where(eq(taskTable.id, data.taskId))
+    .limit(1);
+  const [project] = task
+    ? await db
+        .select({ workspaceId: projectTable.workspaceId })
+        .from(projectTable)
+        .where(eq(projectTable.id, task.projectId))
+        .limit(1)
+    : [];
+
+  if (newAssigneeId && newAssigneeId !== data.userId) {
     await createNotification({
-      userId: data.newAssigneeId,
+      userId: newAssigneeId,
       type: "task_assignee_changed",
       eventData: {
         taskTitle: data.title,
@@ -350,7 +368,26 @@ subscribeToEvent<{
       resourceType: "task",
     });
   }
-});
+
+  for (const userId of watchedRecipients) {
+    await createNotification({
+      userId,
+      type: "task_watched_assignee_changed",
+      title: "Task assignee changed",
+      content: `The assignee of ${data.title} changed.`,
+      eventData: {
+        taskTitle: data.title,
+        projectId: task?.projectId ?? null,
+        workspaceId: project?.workspaceId ?? null,
+      },
+      resourceId: data.taskId,
+      resourceType: "task",
+    });
+  }
+}
+
+subscribeToEvent<AssigneeChange>("task.assignee_changed", notifyAssigneeChange);
+subscribeToEvent<AssigneeChange>("task.unassigned", notifyAssigneeChange);
 
 subscribeToEvent<{
   timeEntryId: string;
