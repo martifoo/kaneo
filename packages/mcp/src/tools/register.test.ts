@@ -186,6 +186,42 @@ describe("registerTools", () => {
     });
   });
 
+  it.each([true, false])("sets task watching to %s", async (watching) => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn().mockResolvedValue({ watching }) };
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("set_task_watch")?.handler({
+      taskId: "task /1",
+      watching,
+    });
+
+    expect(client.json).toHaveBeenCalledExactlyOnceWith(
+      "/api/task/task%20%2F1/watch",
+      { method: watching ? "PUT" : "DELETE" },
+    );
+    expect(result).toEqual({
+      isError: false,
+      content: [{ type: "text", text: JSON.stringify({ watching }, null, 2) }],
+    });
+  });
+
+  it.each([
+    { taskId: "task-1" },
+    { taskId: "task-1", watching: "false" },
+    { taskId: "task-1", watching: null },
+    { taskId: " ", watching: true },
+  ])("rejects invalid watch arguments %j without an API call", async (args) => {
+    const { server, tools } = createServerMock();
+    const client = { json: vi.fn() };
+    registerTools(server as never, { client: client as never });
+
+    const result = await tools.get("set_task_watch")?.handler(args);
+
+    expect(result?.isError).toBe(true);
+    expect(client.json).not.toHaveBeenCalled();
+  });
+
   it("gets one task by ticket ID with an optional workspace", async () => {
     const { server, tools } = createServerMock();
     const client = {

@@ -165,6 +165,59 @@ describe("MCP 2026-07-28 stateless HTTP", () => {
     expect(apiFetch).toHaveBeenCalledTimes(1);
   });
 
+  it.each([true, false])(
+    "sets task watching to %s through the HTTP MCP server",
+    async (watching) => {
+      const apiFetch = vi.fn(
+        async (_input: RequestInfo | URL, _init?: RequestInit) =>
+          Response.json({ watching }),
+      );
+      vi.stubGlobal("fetch", apiFetch);
+      const handler = createModernMcpHandler("test-token", "http://api.test");
+
+      const response = await handler.fetch(
+        modernRequest("tools/call", 1, {
+          name: "set_task_watch",
+          arguments: { taskId: "task 1", watching },
+        }),
+      );
+      const body = await rpcBody(response);
+
+      expect(response.status).toBe(200);
+      expect(body.error).toBeUndefined();
+      expect(JSON.parse(body.result.content[0].text)).toEqual({ watching });
+      expect(apiFetch).toHaveBeenCalledExactlyOnceWith(
+        "http://api.test/api/task/task%201/watch",
+        expect.objectContaining({ method: watching ? "PUT" : "DELETE" }),
+      );
+      const [, init] = apiFetch.mock.calls[0];
+      expect(new Headers(init?.headers).get("authorization")).toBe(
+        "Bearer test-token",
+      );
+    },
+  );
+
+  it("returns task watch access errors through the HTTP MCP server", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({ message: "Forbidden" }, { status: 403 }),
+      ),
+    );
+    const handler = createModernMcpHandler("test-token", "http://api.test");
+
+    const response = await handler.fetch(
+      modernRequest("tools/call", 1, {
+        name: "set_task_watch",
+        arguments: { taskId: "task-1", watching: true },
+      }),
+    );
+    const body = await rpcBody(response);
+
+    expect(body.result).toMatchObject({ isError: true });
+    expect(body.result.content[0].text).toContain("Forbidden");
+  });
+
   it("validates bearer authentication on every modern POST", async () => {
     const responses = await Promise.all(
       [1, 2].map((id) =>

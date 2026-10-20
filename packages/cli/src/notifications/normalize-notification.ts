@@ -72,7 +72,7 @@ function describe(
       const who = field(data, "commenterName") ?? "Someone";
       const preview = field(data, "commentPreview");
       return {
-        title: `${who} commented on your task`,
+        title: `${who} commented on a task`,
         message: preview ? `${named}: ${preview}` : named,
       };
     }

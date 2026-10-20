@@ -248,13 +248,31 @@ export function registerTools(
     "get_task",
     {
       description:
-        "Get a task by ID. Custom field values are not included; use get_task_custom_field_values.",
+        "Get a task by ID, including whether the current user watches it (isWatching). Custom field values are not included; use get_task_custom_field_values.",
       inputSchema: z.object({ taskId: nonEmptyString }),
     },
     async (args) =>
       run(() =>
         client.json(`/api/task/${encodeURIComponent(args.taskId)}`, {
           method: "GET",
+        }),
+      ),
+  );
+
+  registerTool(
+    "set_task_watch",
+    {
+      description:
+        "Watch or stop watching a task as the current user. Requires read access to the task. Watching notifies you about comments, status and assignment changes through your existing notification preferences.",
+      inputSchema: z.object({
+        taskId: nonEmptyString,
+        watching: z.boolean().describe("True to watch, false to stop watching"),
+      }),
+    },
+    async ({ taskId, watching }) =>
+      run(() =>
+        client.json(`/api/task/${encodeURIComponent(taskId)}/watch`, {
+          method: watching ? "PUT" : "DELETE",
         }),
       ),
   );

@@ -65,7 +65,7 @@ describe("normalizeNotification", () => {
         }),
       ),
     ).toMatchObject({
-      title: "Grace commented on your task",
+      title: "Grace commented on a task",
       message: "Ship it: Looks good, merging",
     });
     expect(

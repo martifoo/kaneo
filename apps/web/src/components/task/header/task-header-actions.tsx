@@ -30,9 +30,11 @@ export function TaskHeaderActions({
   return (
     <div className="flex items-center gap-1">
       <HeaderIconButton
-        label={t(
-          isWatching ? "tasks:detail.unwatchTask" : "tasks:detail.watchTask",
-        )}
+        label={
+          isWatching
+            ? t("tasks:detail.unwatchTask")
+            : t("tasks:detail.watchTask")
+        }
         pressed={isWatching}
         disabled={!task || watch.isPending}
         onClick={() =>

@@ -118,7 +118,7 @@ For headless or sandboxed environments where opening a browser is impractical, s
 - Session: `whoami`, `list_workspaces`, `list_workspace_members`, `list_notifications`
 - Search: `search`
 - Projects: `list_projects`, `get_project`, `create_project`, `update_project`, `list_project_columns`
-- Tasks: `list_tasks`, `get_task`, `get_task_by_ticket_id`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
+- Tasks: `list_tasks`, `get_task`, `get_task_by_ticket_id`, `set_task_watch`, `create_task`, `update_task`, `delete_task`, `move_task`, `update_task_status`, `update_task_assignee`, `update_task_due_date`, `list_task_activity`
 - Custom fields: `list_project_custom_fields`, `get_task_custom_field_values`, `set_task_custom_field_value`
 - Time entries: `list_task_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`
 - Comments: `list_task_comments`, `create_task_comment`, `update_task_comment`, `delete_task_comment`
@@ -131,6 +131,9 @@ Call `get_task_by_ticket_id` with a key such as `KAN-12` to retrieve one task
 without listing a project. If the same key identifies multiple accessible tasks,
 pass `workspaceId` or `projectId` to select one.
 `list_workspace_members` resolves the user IDs the assignee tools expect.
+Call `set_task_watch` with `taskId` and `watching: true` to watch a task as the
+authenticated user, or `watching: false` to stop. Read access is sufficient.
+`get_task` returns the current user's watch state as `isWatching`.
 Time entries have no delete endpoint on the API, so there is no
 `delete_time_entry` tool.
 Call `list_project_custom_fields` for the field IDs and options
